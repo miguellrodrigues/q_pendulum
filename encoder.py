@@ -40,7 +40,7 @@ class Encoder:
             self._position -= delta_ctr
 
         self._revolutions = self._position / self._steps_per_rev
-        
+
         self._last_ang_position = self._ang_position
         self._ang_position = self._revolutions * 2 * np.pi
         
@@ -53,4 +53,5 @@ class Encoder:
         else:
             return np.rad2deg(self._ang_position), np.rad2deg(self._velocity)
         
-
+    def destroy(self):
+        self.task.stop()
