@@ -6,13 +6,6 @@ from encoder import Encoder
 
 
 def generate_tasks():
-    """
-    Generate tasks for the encoder channels.
-
-    Returns:
-        list: List of tasks.
-    """
-
     task_dir = nq.Task()
     task_dir.di_channels.add_di_chan(
         "Dev1/port0/line0:7",
@@ -46,8 +39,12 @@ pendulum_encoder = Encoder(
 iterations = 5000
 
 time_values = np.zeros(iterations)
-base_enc_values = np.zeros(iterations)
-pendulum_enc_values = np.zeros(iterations)
+
+base_enc_positions = np.zeros(iterations)
+pendulum_enc_positions = np.zeros(iterations)
+
+base_enc_velocities = np.zeros(iterations)
+pendulum_enc_velocities = np.zeros(iterations)
 
 start_time = time.time()
 
@@ -66,12 +63,36 @@ for i in range(iterations):
     base_pos, base_vel = base_encoder.read()
     pendulum_pos, pendulum_vel = pendulum_encoder.read()
 
-    time_values[i] = i
-    base_enc_values[i] = base_pos
-    pendulum_enc_values[i] = pendulum_pos
+    base_enc_positions[i] = base_pos
+    pendulum_enc_positions[i] = pendulum_pos
+
+    base_enc_velocities[i] = base_vel
+    pendulum_enc_velocities[i] = pendulum_vel
+
+    print(f"{pendulum_pos}")
 
 
-plt.plot(base_enc_values, label="base encoder")
-plt.plot(pendulum_enc_values, label="pendulum encoder")
-plt.legend(["base encoder", "pendulum encoder"])
+# create 2 subplots
+fig, ax = plt.subplots(2, 1)
+
+# in subplot 1 print base and pendulum angular positionis
+ax[0].plot(base_enc_positions, label='base')
+ax[0].plot(pendulum_enc_positions, label='pendulum')
+ax[0].legend(['base', 'pendulum'])
+
+# in subplot 2 print base and pendulum angular velocities
+ax[1].plot(base_enc_velocities, label='base')
+ax[1].plot(pendulum_enc_velocities, label='pendulum')
+ax[1].legend(['base', 'pendulum'])
+
+np.save('base_enc_positions', base_enc_positions)
+np.save('base_enc_positions.npy', base_enc_positions)
+np.save('pendulum_enc_positions.npy', pendulum_enc_positions)
+np.save('base_enc_velocities.npy', base_enc_velocities)
+np.save('pendulum_enc_velocities.npy', pendulum_enc_velocities)
+
 plt.show()
+
+base_encoder.destroy()
+pendulum_encoder.destroy()
+direction.stop()
